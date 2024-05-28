@@ -15,11 +15,6 @@ source("~/surfdrive/Lorenza Cotugno/new/plot.boot.gmr3.R")
 source("~/surfdrive/Lorenza Cotugno/new/auxiliary.gmr3.R")
 source("~/surfdrive/Lorenza Cotugno/new/fit.gmr3.R")
 
-# source("~/surfdrive/Lorenza Cotugno/FUNCTIONGMR4_1.R")
-# source("~/surfdrive/Lorenza Cotugno/FinalValidation.R")
-# source("~/surfdrive/Lorenza Cotugno/Predict.R")
-# source("~/surfdrive/Lorenza Cotugno/Validation.R")
-
 # recoding Yo en Yb
 YYo = matrix(NA, 837, 5)
 for(r in 1:5){YYo[, r] = myrecode(Yo[, r], old = c(1,2,3,4), new = c(4,3,2,1))}
@@ -53,8 +48,6 @@ source("~/surfdrive/Lorenza Cotugno/new/plot.xval.gmr3.R")
 PE = xval.gmr3(Yb = YYb, Yo = YYo, X = X, Xscale = Xscale, S = 1:5, repeats = 10, mseed = 12)
 PE2 = plot.xval.gmr3(PE)
 
-# ggsave("~/surfdrive/Lorenza Cotugno/xvalplot.pdf", plot = PE2$plot, width = 11.7, height = 8.3, units = "in", limitsize = FALSE)
-
 dimsel = matrix(NA, 5, 7)
 dimsel[, 1] = 1:5
 dimsel[, 2] = c(out1$loss, out2$loss, out3$loss, out4$loss, out5$loss)
@@ -64,9 +57,8 @@ dimsel[, 5] = c(out1$BIC, out2$BIC, out3$BIC, out4$BIC, out5$BIC)
 dimsel[, 6] = c(fit1$McFadden, fit2$McFadden, fit3$McFadden, fit4$McFadden, fit5$McFadden)
 dimsel[, 7] = c(fit1$McFadden.adj, fit2$McFadden.adj, fit3$McFadden.adj, fit4$McFadden.adj, fit5$McFadden.adj)
 colnames(dimsel) = c("S", "-LL", "k", "AIC", "BIC", "R^2", "R_a^2")
-# dimsel[, 8] = c(PEsummary[1,2], PEsummary[2,2], PEsummary[3,2], PEsummary[4,2], PEsummary[5,2])
-# colnames(dimsel) = c("S", "-LL", "k", "AIC", "BIC", "R^2", "R_a^2", "CV")
 
+library(xtable)
 xtable(dimsel)
 out = out2
 
