@@ -19,3 +19,5 @@ The scripts are:
 
 For the scripts to run properly, first you need to obtain the data from the the website of the European Union https:
 //europa.eu/eurobarometer/screen/home. The file code needed is ZA7953. 
+
+The script analysis.R reproduces the analysis described in the manuscript. 
