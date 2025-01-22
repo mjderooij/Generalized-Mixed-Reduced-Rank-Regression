@@ -21,3 +21,8 @@ For the scripts to run properly, first you need to obtain the data from the the 
 //europa.eu/eurobarometer/screen/home. The file code needed is ZA7953. 
 
 The script analysis.R reproduces the analysis described in the manuscript. 
+
+For the simulation study the scripts are:
+1. simstudy.R
+2. rrr.sim3a.R
+3. rrr.sim3b.R
