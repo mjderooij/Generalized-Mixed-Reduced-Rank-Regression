@@ -133,6 +133,7 @@ gmr3 = function(Yn = NULL, Yb = NULL, Yo = NULL, X, S = 2, Xscale, trace = TRUE,
     # ----------------------------------------------------
     # update majorization constant
     # ----------------------------------------------------
+    if(sigma2 < 0.05){cat("Be carefull, sigma^2 is very small")}
     kappa = max(1/sigma2, 0.25) 
     ikappa = 1/kappa
     
@@ -235,6 +236,7 @@ gmr3 = function(Yn = NULL, Yb = NULL, Yo = NULL, X, S = 2, Xscale, trace = TRUE,
     if(!is.null(Yn)){
       RES = Yn - (outer(ones.n, mm[Nseq]) + PHI %*% B %*% t(V[Nseq, , drop = FALSE]))
       sigma2 = sd(RES)^2
+      if(sigma2 < 0.05) warning("Residual variance is very small - may hamper convegence")
       # sigma2 = sum(diag(t(RES) %*% RES))/(N*Rn)
       dev.n = sum(RES^2)/(2 * sigma2) + N*Rn/2 * log(sqrt(2 * pi * sigma2))  # numeric part
       rdevs.n = colSums(RES^2)/(2 * sigma2) + N/2 * log(sqrt(2 * pi * sigma2))
@@ -250,18 +252,36 @@ gmr3 = function(Yn = NULL, Yb = NULL, Yo = NULL, X, S = 2, Xscale, trace = TRUE,
     
     loss.new = dev.n + dev.b + dev.o
     
+    # if (trace) {cat(iter, loss.old, loss.new, (2*(loss.old - loss.new)/(loss.old + 0.1)), "\n")}
+    # if ( (2*(loss.old - loss.new)/(loss.old + 0.1)) < dcrit ) break
     if (trace) {cat(iter, loss.old, loss.new, (2*(loss.old - loss.new)/(loss.old + loss.new)), "\n")}
-    # if (loss.new > loss.old) stop("Divergence - should not occur!")
-    if ( (2*(loss.old - loss.new)/(loss.old + loss.new)) < dcrit ) break
+    if(iter > 1){
+      if (loss.new > loss.old) stop("Divergence - should not occur!")
+      if ( (2*(loss.old - loss.new)/(loss.old + loss.new)) < dcrit ) break
+    }
+    # if ( abs(2*(loss.old - loss.new)/(loss.old + loss.new)) < dcrit ) break
     if (iter == maxiter) warning("Maximum number of iterations reached - not converged (yet)")
     loss.old = loss.new
   }
   
+  # ----------------------------------------------------
+  # identify the solution
+  # svd of BV'
+  # ----------------------------------------------------
+  udv = svd(theta) # PHI %*% B %*% t(V))
+  XB = matrix(udv$u[, 1:S], N, S) %*% diag(udv$d[1:S], nrow = S, ncol = S)
+  B = solve(t(PHI) %*% PHI) %*% t(PHI) %*% XB
+  V = matrix(udv$v[, 1:S], nrow = R, ncol = S)
+  
   xnames = colnames(X)
   ynames = c(colnames(Yn), colnames(Yb), colnames(Yo))
+
+  rownames(B) = xnames
+  rownames(V) = ynames
   
   # number of parameters
-  npar = (P + R - S)*S + Rn + Rb + sum(sapply(m, length)) + sum(unlist(sapply(G, ncol)) - 2)
+  npar.m.ord = ifelse( is.null(Yo), 0, sum(sapply(m, length)))
+  npar = (P + R - S)*S + Rn + Rb + npar.m.ord + sum(unlist(sapply(G, ncol)) - 2)
   npar.change = (P + R - S)*S + sum(unlist(sapply(G, ncol)) - 2)
   
   # make output object
